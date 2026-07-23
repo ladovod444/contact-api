@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+   Демо страница - Форма контактов
+{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('contact') }}
+
+    <link rel="stylesheet" href="{{ asset('css/contact.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="contact-wrapper">
+        <h1>Форма контактов</h1>
+        <div id="app"></div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="{{ asset('js/contact-form.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,13 @@
+<h1>Контакты</h1>
+
+<h2>
+    Вы указали следующие данные:
+</h2>
+<p><strong>Имя:</strong> {{ name }}</p>
+<p><strong>Номер телефона:</strong> {{ phone }}</p>
+<p><strong>Текст сообщения:</strong> {{ comment }}</p>
+
+{% if autoReply %}
+    <p>{{ autoReply }}</p>
+{% endif %}
+

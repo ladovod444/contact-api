@@ -1,0 +1,10 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Contact API
+            description: Contact API для технического задания
+            version: 1.0.0
+
+    areas:
+        path_patterns:
+            - ^/api/
