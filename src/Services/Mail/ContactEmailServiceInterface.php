@@ -9,5 +9,5 @@ use App\DTO\ContactDTO;
 
 interface ContactEmailServiceInterface
 {
-    public function send(AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO): void;
+    public function send(?AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO): void;
 }

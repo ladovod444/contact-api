@@ -24,7 +24,7 @@ class ContactEmailService implements ContactEmailServiceInterface
         private LoggerInterface $logger,
     ) {}
 
-    public function send(AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO): void
+    public function send(?AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO): void
     {
 
         $email = new TemplatedEmail()
@@ -39,7 +39,7 @@ class ContactEmailService implements ContactEmailServiceInterface
                 'name' => $contactDTO->getName(),
                 'phone' => $contactDTO->getPhone(),
                 'comment' => $contactDTO->getComment(),
-                'autoReply' => $analysisDTO->getAutoReply() ?? '',
+                'autoReply' => $analysisDTO?->getAutoReply() ?? '',
             ]);
 
         try
@@ -52,7 +52,7 @@ class ContactEmailService implements ContactEmailServiceInterface
                     'name' => $contactDTO->getName(),
                     'phone' => $contactDTO->getPhone(),
                     'comment' => $contactDTO->getComment(),
-                    'autoReply' => $analysisDTO->getAutoReply() ?? '',
+                    'autoReply' => $analysisDTO?->getAutoReply() ?? '',
                 ],
             ]);
         }

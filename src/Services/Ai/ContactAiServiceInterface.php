@@ -8,5 +8,5 @@ use App\DTO\AiAnalysisDTO;
 
 interface ContactAiServiceInterface
 {
-    public function analyzeFeedback(string $comment): AiAnalysisDTO;
+    public function analyzeFeedback(string $comment): ?AiAnalysisDTO;
 }

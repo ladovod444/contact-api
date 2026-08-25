@@ -1,0 +1,9 @@
+services:
+    App\Services\Ai\ContactAiServiceInterface:
+        alias: App\Services\Ai\ContactAiService
+        public: true
+
+    App\Repository\ContactStatisticsRepository:
+        public: true
+        arguments:
+          [ ]

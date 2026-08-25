@@ -27,7 +27,7 @@ class ContactAiService implements ContactAiServiceInterface
         private LoggerInterface $logger,
     ) {}
 
-    public function analyzeFeedback(string $comment): AiAnalysisDTO
+    public function analyzeFeedback(string $comment): ?AiAnalysisDTO
     {
 
         // Если в .env не указаны параметры:
@@ -67,8 +67,20 @@ class ContactAiService implements ContactAiServiceInterface
 
             if(!$content)
             {
-                $this->logger->error("Ошибка при обращении к  AI");
-                return new AiAnalysisDTO('neutral', 'other', null);
+                $this->logger->error("Ошибка при обращении к AI");
+                return null;
+            }
+
+            // Список допустимых значений, которые мы ожидаем от AI
+            $allowedSentiments = ['positive', 'negative', 'neutral'];
+
+            $sentiment = $content['sentiment'] ?? null;
+
+            // Если sentiment нет или его значение не из разрешенного списка -> возвращаем null
+            if ($sentiment === null || !in_array($sentiment, $allowedSentiments, true)) {
+                // Логгируем неожиданный ответ:
+                 $this->logger->warning('Unexpected AI sentiment', ['sentiment' => $sentiment]);
+                return null;
             }
 
             $aiAnalysisDTO = new AiAnalysisDTO(
@@ -89,7 +101,7 @@ class ContactAiService implements ContactAiServiceInterface
         {
             // Graceful fallback: возвратить безопасный результат
             $this->logger->error("Ошибка получения данныx от AI", ['error' => $error->getMessage()]);
-            return new AiAnalysisDTO('neutral', 'other', null);
+            return null;
         }
     }
 }

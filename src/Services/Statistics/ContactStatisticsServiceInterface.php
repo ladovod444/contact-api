@@ -10,5 +10,5 @@ use App\Entity\ContactStatistics;
 
 interface ContactStatisticsServiceInterface
 {
-    public function createStatistics(AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO, string $ip): ContactStatistics;
+    public function createStatistics(?AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO, string $ip): ContactStatistics;
 }

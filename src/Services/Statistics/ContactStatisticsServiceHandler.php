@@ -18,7 +18,7 @@ class ContactStatisticsServiceHandler implements ContactStatisticsServiceInterfa
         private EntityManagerInterface $entityManager,
     ) {}
 
-    public function createStatistics(AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO, string $ip): ContactStatistics
+    public function createStatistics(?AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO, string $ip): ContactStatistics
     {
 
         $contactStatistics = new ContactStatistics();
@@ -27,10 +27,14 @@ class ContactStatisticsServiceHandler implements ContactStatisticsServiceInterfa
             ->setName($contactDTO->getName())
             ->setEmail($contactDTO->getEmail())
             ->setPhone($contactDTO->getPhone())
-            ->setSentiment($analysisDTO->getSentiment())
-            ->setCategory($analysisDTO->getCategory())
-            ->setAutoReply($analysisDTO->getAutoReply())
             ->setComment($contactDTO->getComment());
+
+        if(null !== $analysisDTO)
+        {
+            $contactStatistics->setSentiment($analysisDTO->getSentiment())
+                ->setCategory($analysisDTO->getCategory())
+                ->setAutoReply($analysisDTO->getAutoReply());
+        }
 
         $this->entityManager->persist($contactStatistics);
         $this->entityManager->flush();
