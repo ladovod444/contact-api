@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\DTO\ContactDTO;
+use App\DTO\ContactStatisticsDTO;
 use App\Services\ProcessContactRequestInterface;
 use Monolog\Attribute\WithMonologChannel;
 use OpenApi\Attributes as OA;
@@ -105,7 +106,8 @@ class ContactController extends AbstractController
             'autoReply' => $contactStatistics->getAutoReply(),
         ]);
 
-        return $this->json($contactStatistics, Response::HTTP_CREATED);
+        $ContactStatisticsDTO = ContactStatisticsDTO::fromEntity($contactStatistics);
+        return $this->json($ContactStatisticsDTO, Response::HTTP_CREATED);
     }
 
 }

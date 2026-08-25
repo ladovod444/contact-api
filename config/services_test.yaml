@@ -3,7 +3,7 @@ services:
         alias: App\Services\Ai\ContactAiService
         public: true
 
-    App\Repository\ContactStatisticsRepository:
-        public: true
-        arguments:
-          [ ]
+#    App\Repository\ContactStatisticsRepository:
+#        public: true
+#        arguments:
+#          [ ]
