@@ -4,15 +4,16 @@ declare(strict_types=1);
 namespace App\DTO;
 
 use App\Entity\ContactStatistics;
-use Doctrine\DBAL\Types\Types;
+use App\ValueObject\EmailAddress;
+use App\ValueObject\PhoneNumber;
 
 class ContactStatisticsDTO
 {
     private ?string $name = null;
 
-    private ?string $phone = null;
+    private ?PhoneNumber $phone = null;
 
-    private ?string $email = null;
+    private ?EmailAddress $email = null;
 
     private ?string $comment = null;
 
@@ -27,12 +28,12 @@ class ContactStatisticsDTO
         return $this->name;
     }
 
-    public function getPhone(): ?string
+    public function getPhone(): ?PhoneNumber
     {
         return $this->phone;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): ?EmailAddress
     {
         return $this->email;
     }
@@ -60,7 +61,6 @@ class ContactStatisticsDTO
     public static function fromEntity(ContactStatistics $contactStatistics): self
     {
         $instance = new self();
-//        $response->id = $category->getId();
         $instance->name = $contactStatistics->getName();
         $instance->phone = $contactStatistics->getPhone();
         $instance->email = $contactStatistics->getEmail();

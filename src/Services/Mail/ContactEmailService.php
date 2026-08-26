@@ -30,14 +30,14 @@ class ContactEmailService implements ContactEmailServiceInterface
         $email = new TemplatedEmail()
             ->from($this->siteEmail)
             ->to($this->siteEmail)
-            ->cc($contactDTO->getEmail())
+            ->cc((string) $contactDTO->getEmailVO())
             ->subject('Contact')
             ->htmlTemplate('email/contact.html.twig')
 
             // Передать переменный в template
             ->context([
                 'name' => $contactDTO->getName(),
-                'phone' => $contactDTO->getPhone(),
+                'phone' => $contactDTO->getPhoneVO(),
                 'comment' => $contactDTO->getComment(),
                 'autoReply' => $analysisDTO?->getAutoReply() ?? '',
             ]);

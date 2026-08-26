@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\DTO;
 
+use App\ValueObject\EmailAddress;
+use App\ValueObject\PhoneNumber;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ContactDTO
@@ -47,5 +49,21 @@ class ContactDTO
     public function getComment(): string
     {
         return $this->comment;
+    }
+
+    /**
+     * Возвращает гарантированно валидный и нормализованный Email
+     */
+    public function getEmailVO(): EmailAddress
+    {
+        return EmailAddress::fromString($this->email);
+    }
+
+    /**
+     * Возвращает гарантированно валидный и нормализованный Phone
+     */
+    public function getPhoneVO(): PhoneNumber
+    {
+        return PhoneNumber::fromString($this->phone);
     }
 }

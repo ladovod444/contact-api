@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Services\Statistics;
@@ -25,8 +26,8 @@ class ContactStatisticsServiceHandler implements ContactStatisticsServiceInterfa
         $contactStatistics
             ->setIp($ip)
             ->setName($contactDTO->getName())
-            ->setEmail($contactDTO->getEmail())
-            ->setPhone($contactDTO->getPhone())
+            ->setEmail($contactDTO->getEmailVO())
+            ->setPhone($contactDTO->getPhoneVO())
             ->setComment($contactDTO->getComment());
 
         if(null !== $analysisDTO)

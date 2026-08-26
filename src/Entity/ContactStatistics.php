@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ContactStatisticsRepository;
+use App\ValueObject\EmailAddress;
+use App\ValueObject\PhoneNumber;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,11 +27,11 @@ class ContactStatistics
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $phone = null;
+    #[ORM\Column(type: 'email_address', length: 255, nullable: true)]
+    private ?EmailAddress $email = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    #[ORM\Column(type: 'phone_number', length: 255, nullable: true)]
+    private ?PhoneNumber $phone = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $comment = null;
@@ -43,8 +45,9 @@ class ContactStatistics
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $autoReply = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeImmutable $createdAt;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -67,27 +70,25 @@ class ContactStatistics
         return $this;
     }
 
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(string $phone): static
-    {
-        $this->phone = $phone;
-
-        return $this;
-    }
-
-    public function getEmail(): ?string
+    public function getEmail(): ?EmailAddress
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(?EmailAddress $email): self
     {
         $this->email = $email;
+        return $this;
+    }
 
+    public function getPhone(): ?PhoneNumber
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?PhoneNumber $phone): self
+    {
+        $this->phone = $phone;
         return $this;
     }
 
@@ -149,4 +150,5 @@ class ContactStatistics
         $this->ip = $ip;
         return $this;
     }
+
 }
