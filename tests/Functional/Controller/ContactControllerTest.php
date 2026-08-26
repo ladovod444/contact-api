@@ -99,27 +99,30 @@ final class ContactControllerTest extends WebTestCase
         self::assertEmailCount(1);
     }
 
-//    public function testItReturnsErrorResponseAsJsonNotHtml(): void
-//    {
-//        $this->post([
-//            'name' => '',
-//            'phone' => '',
-//            'email' => 'bad',
-//            'comment' => '',
-//        ]);
-//
-//        $content = $this->client->getResponse()->getContent();
-////        dump($content);
-//        self::assertJson($content);
-//        self::assertStringNotContainsString('<html', $content);
-//    }
+    public function testItReturnsErrorResponseAsJsonNotHtml(): void
+    {
+        $this->post([
+            'name' => '',
+            'phone' => '',
+            'email' => 'bad',
+            'comment' => '',
+        ]);
+
+        $content = $this->client->getResponse()->getContent();
+
+        self::assertJson($content);
+        self::assertStringNotContainsString('<html', $content);
+    }
 
     private function post(array $payload): void
     {
         $this->client->request(
             'POST',
             '/api/contact',
-            server: ['CONTENT_TYPE' => 'application/json'],
+            server: [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => 'application/json'
+            ],
             content: json_encode($payload, JSON_THROW_ON_ERROR),
         );
     }
