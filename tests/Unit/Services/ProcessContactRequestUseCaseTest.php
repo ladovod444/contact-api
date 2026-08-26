@@ -7,19 +7,22 @@ namespace App\Tests\Unit\Services;
 use App\DTO\AiAnalysisDTO;
 use App\DTO\ContactDTO;
 use App\Entity\ContactStatistics;
+use App\Message\SendEmailMessage;
 use App\Services\Ai\ContactAiServiceInterface;
-use App\Services\Mail\ContactEmailServiceInterface;
 use App\Services\ProcessContactRequestUseCase;
 use App\Services\Statistics\ContactStatisticsServiceInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class ProcessContactRequestUseCaseTest extends TestCase
 {
     private ContactStatisticsServiceInterface&MockObject $statistics;
     private ContactAiServiceInterface&MockObject $ai;
-    private ContactEmailServiceInterface&MockObject $email;
+
+    private MessageBusInterface&MockObject $messageBus;
     private ProcessContactRequestUseCase $useCase;
 
     private LoggerInterface&MockObject $logger;
@@ -28,14 +31,14 @@ final class ProcessContactRequestUseCaseTest extends TestCase
     {
         $this->statistics = $this->createMock(ContactStatisticsServiceInterface::class);
         $this->ai = $this->createMock(ContactAiServiceInterface::class);
-        $this->email = $this->createMock(ContactEmailServiceInterface::class);
+        $this->messageBus = $this->createMock(MessageBusInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->useCase = new ProcessContactRequestUseCase(
             $this->ai,
-            $this->email,
             $this->statistics,
-            $this->logger
+            $this->logger,
+            $this->messageBus,
         );
     }
 
@@ -55,16 +58,22 @@ final class ProcessContactRequestUseCaseTest extends TestCase
             ->with($contactDto->getComment())
             ->willReturn($analysisDTO);
 
-        $this->email
-            ->expects(self::once())
-            ->method('send')
-            ->with($analysisDTO, $contactDto);
-
         $this->statistics
             ->expects(self::once())
             ->method('createStatistics')
             ->with($analysisDTO, $contactDto, '203.0.113.10')
             ->willReturn($entity);
+
+
+        $sendEmailMessage = $this->makeSendEmailMessage($entity, $contactDto);
+
+        $envelope = new Envelope($sendEmailMessage, []);
+
+        $this->messageBus
+            ->expects(self::once())
+            ->method('dispatch')
+            ->with($sendEmailMessage)
+            ->willReturn($envelope);
 
         $result = $this->useCase->execute($contactDto, '203.0.113.10');
 
@@ -79,18 +88,27 @@ final class ProcessContactRequestUseCaseTest extends TestCase
     public function testItStillSavesAndSendsEmailsWhenAiFails(): void
     {
         $contactDto = $this->makeContactDto('Ничего не работает!');
-        $entity = new ContactStatistics();
+        $entity = new ContactStatistics()
+            ->setCategory('support');
 
         $this->ai
             ->expects(self::once())
             ->method('analyzeFeedback')
             ->willThrowException(new \RuntimeException('AI provider timeout'));
 
-        $this->email->expects(self::once())->method('send');
-
         $this->statistics
             ->method('createStatistics')
             ->willReturn($entity);
+
+        $sendEmailMessage = $this->makeSendEmailMessage($entity, $contactDto);
+
+        $envelope = new Envelope($sendEmailMessage, []);
+
+        $this->messageBus
+            ->expects(self::once())
+            ->method('dispatch')
+            ->with($sendEmailMessage)
+            ->willReturn($envelope);
 
 
         $result = $this->useCase->execute($contactDto, '203.0.113.10');
@@ -105,19 +123,6 @@ final class ProcessContactRequestUseCaseTest extends TestCase
         $entity = new ContactStatistics();
         $calls = [];
 
-        $this->statistics
-            ->method('createStatistics')
-            ->willReturnCallback(function() use (&$calls, $entity) {
-                $calls[] = 'persist';
-
-                return $entity;
-            });
-
-        $this->email
-            ->method('send')
-            ->willReturnCallback(function() use (&$calls) {
-                $calls[] = 'email';
-            });
 
         $this->ai
             ->method('analyzeFeedback')
@@ -127,11 +132,30 @@ final class ProcessContactRequestUseCaseTest extends TestCase
                 return new AiAnalysisDTO('neutral', 'support', 'ok');
             });
 
+        $this->statistics
+            ->method('createStatistics')
+            ->willReturnCallback(function() use (&$calls, $entity) {
+                $calls[] = 'persist';
+
+                return $entity;
+            });
+
+        $sendEmailMessage = $this->makeSendEmailMessage($entity, $contactDto);
+
+        $envelope = new Envelope($sendEmailMessage, []);
+        $this->messageBus
+            ->method('dispatch')
+            ->willReturnCallback(function() use (&$calls, $envelope) {
+                $calls[] = 'email';
+
+                return $envelope;
+            });
+
 
         $this->useCase->execute($contactDto, '203.0.113.10');
 
         // Проверить что в ProcessContactRequestUseCase методы сервисов сработали в нужной последовательности
-        self::assertSame(['ai', 'email', 'persist'], $calls);
+        self::assertSame(['ai',  'persist', 'email'], $calls);
     }
 
     private function makeContactDto(string $comment): ContactDTO
@@ -141,6 +165,17 @@ final class ProcessContactRequestUseCaseTest extends TestCase
             phone: '+7 (999) 123-45-67',
             email: 'ivan@example.com',
             comment: $comment,
+        );
+    }
+
+    private function makeSendEmailMessage(ContactStatistics $entity, ContactDTO $contactDto): SendEmailMessage
+    {
+        return new SendEmailMessage(
+            autoReply: $entity->getAutoReply(),
+            name: $contactDto->getName(),
+            phone: $contactDto->getPhone(),
+            email: $contactDto->getEmail(),
+            comment: $contactDto->getComment()
         );
     }
 }

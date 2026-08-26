@@ -20,6 +20,7 @@ class ContactAiService implements ContactAiServiceInterface
 
     private const string AI_MODEL = 'claude-opus-4.8';
     private const string AI_PROMPT = 'Ты аналитик обратной связи. Верни ответ строго в виде JSON без какой‑либо разметки, без ```json, без лишних слов. Только JSON-объект строго по схеме: {"sentiment": "positive|negative|neutral", "category": "billing|support|bug|feature", "autoReply": "текст"}';
+
     function __construct(
         private readonly HttpClientInterface $httpClient,
         private string $apiKey,
@@ -77,9 +78,10 @@ class ContactAiService implements ContactAiServiceInterface
             $sentiment = $content['sentiment'] ?? null;
 
             // Если sentiment нет или его значение не из разрешенного списка -> возвращаем null
-            if ($sentiment === null || !in_array($sentiment, $allowedSentiments, true)) {
+            if($sentiment === null || !in_array($sentiment, $allowedSentiments, true))
+            {
                 // Логгируем неожиданный ответ:
-                 $this->logger->warning('Unexpected AI sentiment', ['sentiment' => $sentiment]);
+                $this->logger->warning('Unexpected AI sentiment', ['sentiment' => $sentiment]);
                 return null;
             }
 

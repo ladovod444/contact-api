@@ -62,9 +62,11 @@ API_VERSION="1.0"
    9. `symfony/twig-bundle`
    10. `symfony/asset`
    11. `twig/cssinliner-extra`
+   12. `phpunit/phpunit`
+   13. `dama/doctrine-test-bundle`
 
 ### AI: какие инструменты использованы
-Для AI‑интеграции использованы: HTTP‑клиент (symfony/http-client) и агрегатор AI‑API (AITunnel) - модель Сlaude Opus 4.8
+Для AI‑интеграции использованы: HTTP‑клиент (symfony/http-client) и агрегатор AI‑API (AITunnel) - модель Claude Opus 5
 
 ## 3. Архитектура:
 ### Ключевые слои
@@ -97,6 +99,8 @@ src/
 │ └── ContactStatisticsServiceInterface.php
 ├── ProcessContactRequestInterface.php
 └── ProcessContactRequestUseCase.php
+
+tests/
 ````
 
 ### Паттерны проектирования
@@ -121,7 +125,7 @@ src/
 ## 4. Реализация API:
 ### Описание эндпоинтов
 1. POST /api/contact — приём и обработка заявки из формы обратной связи: валидация данных, отправка уведомлений (пользователю и владельцу), 
-сохранение статистики, вызов AI‑анализа тональности. Возвращает статус отправки и созданую сущность ContactStatistics (в json-формате).
+сохранение статистики, вызов AI‑анализа тональности. Возвращает статус отправки и ContactStatisticsDTO  (в json-формате).
     Пример запроса:
      ````
     curl -X POST http://localhost:8090/api/contact \
@@ -318,3 +322,6 @@ src/Controller/Api/ContactController.php, policy: 'fixed_window — это ст�
 
 ## 8. Дополнительно - фронтенд (demo only)
 Для демонстрации работы /api/contact была создана страница /contacts, с выводом формы на Vue.js
+
+## 9. Запуск тестов
+```docker compose exec php_contact bin/phpunit```

@@ -13,6 +13,7 @@ services:
             - symfony_contact
         depends_on:
             - dbcon
+            - rabbitmqcon
 
     dbcon:
         image: postgres:16-alpine
@@ -28,6 +29,26 @@ services:
         networks:
             - symfony_contact
 
+    rabbitmqcon:
+        image: rabbitmq:3-management-alpine
+        restart: always
+        ports:
+            - "5682:5672"
+            - "15862:15672"
+        environment:
+            RABBITMQ_DEFAULT_USER: symfony_user
+            RABBITMQ_DEFAULT_PASS: symfony_password
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        networks:
+            - symfony_contact
+#            - external_network
+        healthcheck:
+            test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
     nginx_contact:
         image: nginx:alpine
         ports:
@@ -42,6 +63,7 @@ services:
 
 volumes:
     db_data:
+    rabbitmq_data:
 
 networks:
     symfony_contact:

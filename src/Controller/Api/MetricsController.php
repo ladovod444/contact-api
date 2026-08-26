@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\DTO\MetricsQueryDTO;
 use App\Repository\ContactStatisticsRepositoryInterface;
 use Monolog\Attribute\WithMonologChannel;
 use OpenApi\Attributes as OA;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[WithMonologChannel('metrics')]
@@ -62,7 +64,7 @@ class MetricsController extends AbstractController
         )
     )]
     #[OA\Response(
-        response: 400,
+        response: 422,
         description: 'Некорректный формат даты',
         content: new OA\JsonContent(
             type: 'object',
@@ -71,11 +73,15 @@ class MetricsController extends AbstractController
             ]
         )
     )]
-    public function index(Request $request): JsonResponse
+    public function index(
+        // Явно указать какой статус возвращать при провале валидации - validationFailedStatusCode в атрибут #[MapQueryString].
+        // со значением Response::HTTP_UNPROCESSABLE_ENTITY (422)
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] MetricsQueryDTO $queryDto
+    ): JsonResponse
     {
 
-        $dateFrom = $request->query->get('dateFrom') ? new \DateTimeImmutable($request->query->get('dateFrom')) : null;
-        $dateTo = $request->query->get('dateTo') ? new \DateTimeImmutable($request->query->get('dateTo')) : null;
+        $dateFrom = $queryDto->getDateFromImmutable();
+        $dateTo = $queryDto->getDateToImmutable();
 
         // Логировать статистику
         if($dateFrom && $dateTo)

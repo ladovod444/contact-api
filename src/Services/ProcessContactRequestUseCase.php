@@ -6,10 +6,11 @@ namespace App\Services;
 
 use App\DTO\ContactDTO;
 use App\Entity\ContactStatistics;
+use App\Message\SendEmailMessage;
 use App\Services\Ai\ContactAiServiceInterface;
-use App\Services\Mail\ContactEmailServiceInterface;
 use App\Services\Statistics\ContactStatisticsServiceInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Обработка запроса /api/contacts
@@ -18,9 +19,9 @@ class ProcessContactRequestUseCase implements ProcessContactRequestInterface
 {
     public function __construct(
         private readonly ContactAiServiceInterface $aiService,
-        private readonly ContactEmailServiceInterface $emailService,
         private readonly ContactStatisticsServiceInterface $statisticsService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly MessageBusInterface $messageBus,
     ) {}
 
     public function execute(ContactDTO $dto, string $clientIp): ContactStatistics
@@ -31,20 +32,29 @@ class ProcessContactRequestUseCase implements ProcessContactRequestInterface
 
         try
         {
-            // 2. Пытаемся получить результат обработки комментария
+            // Попытка получить результат обработки комментария
             $analysisDto = $this->aiService->analyzeFeedback($dto->getComment());
         }
         catch(\RuntimeException $e)
         {
-            // 3. Ловим ошибку
+            // Словить ошибку
             $this->logger->error('AI analysis failed: '.$e->getMessage(), ['comment' => $dto->getComment()]);
-
         }
 
-        // Отправить email
-        $this->emailService->send($analysisDto, $dto);
+        // Создать contactStatistics
+        $contactStatistics = $this->statisticsService->createStatistics($analysisDto, $dto, $clientIp);
 
-        // Создать и возвратить contactStatistics
-        return $this->statisticsService->createStatistics($analysisDto, $dto, $clientIp);
+        // Отправить email асинхронно
+        $sendEmailMessage = new SendEmailMessage(
+            autoReply: $analysisDto?->getAutoReply(),
+            name: $dto->getName(),
+            phone: $dto->getPhone(),
+            email: $dto->getEmail(),
+            comment: $dto->getComment()
+        );
+
+        $this->messageBus->dispatch($sendEmailMessage);
+
+        return $contactStatistics;
     }
 }

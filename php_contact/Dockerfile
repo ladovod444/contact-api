@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    librabbitmq-dev \
     libwebp-dev \
     pkg-config \
     git \
@@ -30,6 +31,9 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# 1. AMQP (RabbitMQ)
+RUN pecl install amqp -- --with-librabbitmq-dir=/usr \
+    && docker-php-ext-enable amqp
 
 # 6. Composer
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer

@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Controller;
 use App\DTO\AiAnalysisDTO;
 use App\Services\Ai\ContactAiServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 final class ContactRateLimitTest extends WebTestCase
 {
@@ -40,6 +41,6 @@ final class ContactRateLimitTest extends WebTestCase
 
         }
 
-        self::assertContains(429, $statuses, 'Rate limiter не сработал');
+        self::assertContains(Response::HTTP_TOO_MANY_REQUESTS, $statuses, 'Rate limiter не сработал');
     }
 }

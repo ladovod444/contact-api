@@ -10,6 +10,7 @@ use App\Repository\ContactStatisticsRepositoryInterface;
 use App\Services\Ai\ContactAiServiceInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 
 final class ContactControllerTest extends WebTestCase
 {
@@ -56,7 +57,7 @@ final class ContactControllerTest extends WebTestCase
             'comment' => 'Текст обращения',
         ]);
 
-        self::assertResponseStatusCodeSame(422);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
         self::assertEmailCount(0);
     }
 
@@ -64,7 +65,7 @@ final class ContactControllerTest extends WebTestCase
     {
         $this->post(['name' => 'Иван']);
 
-        self::assertResponseStatusCodeSame(422);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testItRejectsMalformedJson(): void
@@ -76,7 +77,7 @@ final class ContactControllerTest extends WebTestCase
             content: '{сломанный json',
         );
 
-        self::assertResponseStatusCodeSame(400);
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
     public function testItStillAcceptsRequestWhenAiIsDown(): void
