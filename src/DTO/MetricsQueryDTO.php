@@ -14,7 +14,8 @@ class MetricsQueryDTO
 
         #[Assert\Date(message: 'Некорректный формат даты dateTo (ожидается YYYY-MM-DD)')]
         public ?string $dateTo = null,
-    ) {}
+    ) {
+    }
 
     public function getDateFromImmutable(): ?\DateTimeImmutable
     {

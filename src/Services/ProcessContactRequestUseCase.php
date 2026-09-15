@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Обработка запроса /api/contacts
+ * Обработка запроса /api/contacts.
  */
 class ProcessContactRequestUseCase implements ProcessContactRequestInterface
 {
@@ -22,21 +22,18 @@ class ProcessContactRequestUseCase implements ProcessContactRequestInterface
         private readonly ContactStatisticsServiceInterface $statisticsService,
         private readonly LoggerInterface $logger,
         private readonly MessageBusInterface $messageBus,
-    ) {}
+    ) {
+    }
 
     public function execute(ContactDTO $dto, string $clientIp): ContactStatistics
     {
-
         // Проанализировать сообщение
         $analysisDto = null;
 
-        try
-        {
+        try {
             // Попытка получить результат обработки комментария
             $analysisDto = $this->aiService->analyzeFeedback($dto->getComment());
-        }
-        catch(\RuntimeException $e)
-        {
+        } catch (\RuntimeException $e) {
             // Словить ошибку
             $this->logger->error('AI analysis failed: '.$e->getMessage(), ['comment' => $dto->getComment()]);
         }

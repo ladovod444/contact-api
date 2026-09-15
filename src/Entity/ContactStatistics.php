@@ -11,7 +11,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Статитстика отправки сообщений
+ * Статитстика отправки сообщений.
  */
 #[ORM\Entity(repositoryClass: ContactStatisticsRepository::class)]
 class ContactStatistics
@@ -78,6 +78,7 @@ class ContactStatistics
     public function setEmail(?EmailAddress $email): self
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -89,6 +90,7 @@ class ContactStatistics
     public function setPhone(?PhoneNumber $phone): self
     {
         $this->phone = $phone;
+
         return $this;
     }
 
@@ -112,9 +114,9 @@ class ContactStatistics
     public function setSentiment(?string $sentiment): self
     {
         $this->sentiment = $sentiment;
+
         return $this;
     }
-
 
     public function getCategory(): ?string
     {
@@ -148,7 +150,7 @@ class ContactStatistics
     public function setIp(string $ip): self
     {
         $this->ip = $ip;
+
         return $this;
     }
-
 }

@@ -19,19 +19,19 @@ final class EmailAddressType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?EmailAddress
     {
-        if($value === null)
-        {
+        if (null === $value) {
             return null;
         }
+
         return EmailAddress::fromString($value);
     }
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if($value === null)
-        {
+        if (null === $value) {
             return null;
         }
+
         return $value->getValue();
     }
 

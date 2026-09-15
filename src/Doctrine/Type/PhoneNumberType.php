@@ -19,19 +19,19 @@ final class PhoneNumberType extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?PhoneNumber
     {
-        if($value === null)
-        {
+        if (null === $value) {
             return null;
         }
+
         return PhoneNumber::fromString($value);
     }
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
-        if($value === null)
-        {
+        if (null === $value) {
             return null;
         }
+
         return $value->getValue();
     }
 

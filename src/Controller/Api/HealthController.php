@@ -14,16 +14,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Проверка статуса сервиса
+ * Проверка статуса сервиса.
  */
 #[WithMonologChannel('health')]
 class HealthController extends AbstractController
 {
-    function __construct(
+    public function __construct(
         private LoggerInterface $logger,
         private EntityManagerInterface $entityManager,
         private ParameterBagInterface $parameterBag,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/health', methods: ['GET'])]
     #[OA\Get(
@@ -70,9 +71,9 @@ class HealthController extends AbstractController
                             enum: ['ok', 'degraded'],
                             example: 'ok',
                             description: 'Статус подключения к базе данных'
-                        )
+                        ),
                     ]
-                )
+                ),
             ]
         )
     )]
@@ -82,7 +83,7 @@ class HealthController extends AbstractController
         content: new OA\JsonContent(
             type: 'object',
             properties: [
-                new OA\Property(property: 'error', type: 'string', example: 'Internal Server Error')
+                new OA\Property(property: 'error', type: 'string', example: 'Internal Server Error'),
             ]
         )
     )]
@@ -93,16 +94,13 @@ class HealthController extends AbstractController
         ];
 
         // Проверка БД
-        try
-        {
+        try {
             $this->entityManager->getConnection()->getDatabase();
             $components['database'] = 'ok';
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             // Логировать ошибку, но не показывать детали в ответе
-            $this->logger->error("Ошибка при подлючении к БД", [
-                'error' => $e->getMessage()
+            $this->logger->error('Ошибка при подлючении к БД', [
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -123,7 +121,7 @@ class HealthController extends AbstractController
         ];
 
         // Возвращаем 503, если система деградировала, иначе 200
-        $httpCode = $overallStatus === 'degraded'
+        $httpCode = 'degraded' === $overallStatus
             ? JsonResponse::HTTP_SERVICE_UNAVAILABLE
             : JsonResponse::HTTP_OK;
 

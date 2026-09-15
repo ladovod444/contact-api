@@ -22,11 +22,12 @@ use Symfony\Component\Routing\Attribute\Route;
 #[WithMonologChannel('contact')]
 class ContactController extends AbstractController
 {
-    function __construct(
+    public function __construct(
         private ProcessContactRequestInterface $contactRequest,
         private LoggerInterface $logger,
         #[Target('contact_api')] private RateLimiterFactoryInterface $rateLimiter,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/contact', methods: ['POST'])]
     #[OA\Post(
@@ -68,27 +69,25 @@ class ContactController extends AbstractController
                     ],
                     type: 'object'
                 )
-            )
+            ),
         ]
     )]
     public function index(
         #[MapRequestPayload] ContactDTO $dto,
         Request $request,
-    ): JsonResponse
-    {
-
+    ): JsonResponse {
         // Задать Rate limiter
         $clientIp = $request->getClientIp();
         $limiter = $this->rateLimiter->create($clientIp);
 
-        if(false === $limiter->consume(1)->isAccepted())
-        {
-            $this->logger->warning("Заблокирован запрос:", [
+        if (false === $limiter->consume(1)->isAccepted()) {
+            $this->logger->warning('Заблокирован запрос:', [
                 'ip' => $clientIp,
                 'name' => $dto->getName(),
                 'email' => $dto->getEmail(),
                 'comment' => $dto->getComment(),
             ]);
+
             return $this->json(['error' => 'Too many requests'], 429);
         }
 
@@ -96,7 +95,7 @@ class ContactController extends AbstractController
         $contactStatistics = $this->contactRequest->execute($dto, $clientIp);
 
         // Логировать результат
-        $this->logger->info("Создана сущность с данными:", [
+        $this->logger->info('Создана сущность с данными:', [
             'name' => $contactStatistics->getName(),
             'email' => $contactStatistics->getEmail(),
             'comment' => $contactStatistics->getComment(),
@@ -107,7 +106,7 @@ class ContactController extends AbstractController
         ]);
 
         $ContactStatisticsDTO = ContactStatisticsDTO::fromEntity($contactStatistics);
+
         return $this->json($ContactStatisticsDTO, Response::HTTP_CREATED);
     }
-
 }

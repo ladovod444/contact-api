@@ -6,10 +6,12 @@ namespace App\ValueObject;
 
 final class EmailAddress
 {
-    private function __construct(private readonly string $value) {}
+    private function __construct(private readonly string $value)
+    {
+    }
 
     /**
-     * Именованный конструктор (Factory Method)
+     * Именованный конструктор (Factory Method).
      */
     public static function fromString(string $email): self
     {
@@ -17,8 +19,7 @@ final class EmailAddress
         $normalized = trim(strtolower($email));
 
         // 2. Валидация инварианта: если email невалиден, объект просто не будет создан
-        if(!filter_var($normalized, FILTER_VALIDATE_EMAIL))
-        {
+        if (!filter_var($normalized, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException(sprintf('Некорректный email: "%s"', $email));
         }
 

@@ -10,18 +10,17 @@ use App\Entity\ContactStatistics;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Получает данные от аналитики и запроса создает сущность ContactStatistics
+ * Получает данные от аналитики и запроса создает сущность ContactStatistics.
  */
 class ContactStatisticsServiceHandler implements ContactStatisticsServiceInterface
 {
-
-    function __construct(
+    public function __construct(
         private EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     public function createStatistics(?AiAnalysisDTO $analysisDTO, ContactDTO $contactDTO, string $ip): ContactStatistics
     {
-
         $contactStatistics = new ContactStatistics();
         $contactStatistics
             ->setIp($ip)
@@ -30,8 +29,7 @@ class ContactStatisticsServiceHandler implements ContactStatisticsServiceInterfa
             ->setPhone($contactDTO->getPhoneVO())
             ->setComment($contactDTO->getComment());
 
-        if(null !== $analysisDTO)
-        {
+        if (null !== $analysisDTO) {
             $contactStatistics->setSentiment($analysisDTO->getSentiment())
                 ->setCategory($analysisDTO->getCategory())
                 ->setAutoReply($analysisDTO->getAutoReply());

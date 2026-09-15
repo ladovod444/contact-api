@@ -18,10 +18,11 @@ use Symfony\Component\Routing\Attribute\Route;
 #[WithMonologChannel('metrics')]
 class MetricsController extends AbstractController
 {
-    function __construct(
+    public function __construct(
         private ContactStatisticsRepositoryInterface $statisticsRepository,
-        private LoggerInterface $logger
-    ) {}
+        private LoggerInterface $logger,
+    ) {
+    }
 
     #[Route('/api/metrics', methods: ['GET'])]
     #[OA\Get(
@@ -57,9 +58,9 @@ class MetricsController extends AbstractController
                     example: [
                         'total_requests' => 1500,
                         'unique_users' => 340,
-                        'avg_response_time' => 0.12
+                        'avg_response_time' => 0.12,
                     ]
-                )
+                ),
             ]
         )
     )]
@@ -69,30 +70,25 @@ class MetricsController extends AbstractController
         content: new OA\JsonContent(
             type: 'object',
             properties: [
-                new OA\Property(property: 'error', type: 'string', example: 'Invalid date format')
+                new OA\Property(property: 'error', type: 'string', example: 'Invalid date format'),
             ]
         )
     )]
     public function index(
         // Явно указать какой статус возвращать при провале валидации - validationFailedStatusCode в атрибут #[MapQueryString].
         // со значением Response::HTTP_UNPROCESSABLE_ENTITY (422)
-        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] MetricsQueryDTO $queryDto
-    ): JsonResponse
-    {
-
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] MetricsQueryDTO $queryDto,
+    ): JsonResponse {
         $dateFrom = $queryDto->getDateFromImmutable();
         $dateTo = $queryDto->getDateToImmutable();
 
         // Логировать статистику
-        if($dateFrom && $dateTo)
-        {
+        if ($dateFrom && $dateTo) {
             $this->logger->info('Показана статистика за период', [
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,
             ]);
-        }
-        else
-        {
+        } else {
             $this->logger->info('Показана статистика за весь период');
         }
         $metrics = $this->statisticsRepository->getMetrics($dateFrom, $dateTo);

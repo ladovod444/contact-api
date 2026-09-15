@@ -11,16 +11,17 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 
 /**
- * Отправляет письмо владельцу сайта и копию отправителю
+ * Отправляет письмо владельцу сайта и копию отправителю.
  */
 #[WithMonologChannel('contact')]
 class ContactEmailService implements ContactEmailServiceInterface
 {
-    function __construct(
+    public function __construct(
         private readonly MailerInterface $mailer,
         private readonly string $siteEmail,
         private readonly LoggerInterface $logger,
-    ) {}
+    ) {
+    }
 
     public function send(SendEmailMessage $sendEmailMessage): void
     {
@@ -39,7 +40,7 @@ class ContactEmailService implements ContactEmailServiceInterface
 
         $this->mailer->send($email);
 
-        $this->logger->info("Письмо успешно поставлено в очередь отправки", [
+        $this->logger->info('Письмо успешно поставлено в очередь отправки', [
             'to' => $sendEmailMessage->getEmail(),
         ]);
     }

@@ -11,7 +11,7 @@ final readonly class SendEmailMessage
         private string $name,
         private string $phone,
         private string $email,
-        private string $comment
+        private string $comment,
     ) {
     }
 

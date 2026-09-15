@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AiAnalysisDTO
 {
-    function __construct(
+    public function __construct(
         #[Assert\NotBlank]
         private string $sentiment,
 
@@ -17,7 +17,8 @@ class AiAnalysisDTO
 
         #[Assert\NotBlank]
         private ?string $autoReply,
-    ) {}
+    ) {
+    }
 
     public function getSentiment(): string
     {

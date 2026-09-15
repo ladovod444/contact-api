@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\ContactStatistics;
-use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,16 +15,14 @@ class ContactStatisticsRepository extends ServiceEntityRepository implements Con
         parent::__construct($registry, ContactStatistics::class);
     }
 
-    public function getMetrics(?DateTimeImmutable $dateFrom, ?DateTimeImmutable $dateTo): array
+    public function getMetrics(?\DateTimeImmutable $dateFrom, ?\DateTimeImmutable $dateTo): array
     {
         $qb = $this->createQueryBuilder('s');
 
-        if($dateFrom)
-        {
+        if ($dateFrom) {
             $qb->andWhere('s.createdAt >= :dateFrom')->setParameter('dateFrom', $dateFrom);
         }
-        if($dateTo)
-        {
+        if ($dateTo) {
             $qb->andWhere('s.createdAt <= :dateTo')->setParameter('dateTo', $dateTo);
         }
 
@@ -35,5 +32,4 @@ class ContactStatisticsRepository extends ServiceEntityRepository implements Con
             ->getQuery()
             ->getResult();
     }
-
 }

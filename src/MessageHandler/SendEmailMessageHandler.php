@@ -14,7 +14,7 @@ class SendEmailMessageHandler
 {
     public function __construct(
         private readonly ContactEmailServiceInterface $contactEmailService,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 

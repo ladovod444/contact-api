@@ -29,7 +29,8 @@ class ContactDTO
         #[Assert\NotBlank(message: 'Комментарий обязателен для заполнения')]
         #[Assert\Length(max: 2000, maxMessage: 'Комментарий не должен превышать 2000 символов')]
         private string $comment,
-    ) {}
+    ) {
+    }
 
     public function getName(): string
     {
@@ -52,7 +53,7 @@ class ContactDTO
     }
 
     /**
-     * Возвращает гарантированно валидный и нормализованный Email
+     * Возвращает гарантированно валидный и нормализованный Email.
      */
     public function getEmailVO(): EmailAddress
     {
@@ -60,7 +61,7 @@ class ContactDTO
     }
 
     /**
-     * Возвращает гарантированно валидный и нормализованный Phone
+     * Возвращает гарантированно валидный и нормализованный Phone.
      */
     public function getPhoneVO(): PhoneNumber
     {
